@@ -99,6 +99,8 @@ class OS(object):
             name = 'centos'
         elif name.startswith('fedora'):
             name = 'fedora'
+        elif name.startswith('opensuse'):
+            name = 'suse'
         obj = cls(name=name, version=version, codename=codename.lower())
         return obj
 
@@ -124,6 +126,8 @@ class OS(object):
         name = cls._get_value(str_, 'Distributor ID')
         if name == 'RedHatEnterpriseServer':
             name = 'rhel'
+        elif name.startswith('openSUSE'):
+            name = 'suse'
         name = name.lower()
 
         version = cls._get_value(str_, 'Release')

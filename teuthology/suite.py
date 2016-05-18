@@ -253,7 +253,7 @@ def create_initial_config(suite, suite_branch, ceph_branch, teuthology_branch,
         kernel_dict = dict()
 
     # Get the ceph hash
-    ceph_hash = git_ls_remote('ceph', ceph_branch)
+    ceph_hash = git_ls_remote('ceph', ceph_branch) or ceph_branch
 
     if not ceph_hash:
         exc = BranchNotFoundError(ceph_branch, 'ceph.git')

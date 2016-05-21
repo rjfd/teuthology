@@ -252,8 +252,12 @@ def create_initial_config(suite, suite_branch, ceph_branch, teuthology_branch,
     else:
         kernel_dict = dict()
 
-    # Get the ceph hash
-    ceph_hash = git_ls_remote('ceph', ceph_branch) or ceph_branch
+    # Get the ceph hash.  ceph_branch may represent a ref or
+    # it may be an actual sha1, in which case validate it
+    ceph_hash = git_ls_remote('ceph', ceph_branch)
+    if not ceph_hash:
+        # it wasn't a ref; see if it's valid as a sha1
+        ceph_hash = git_validate_sha1('ceph', ceph_branch)
 
     if not ceph_hash:
         exc = BranchNotFoundError(ceph_branch, 'ceph.git')
@@ -552,6 +556,32 @@ def git_ls_remote(project, branch, project_owner='ceph'):
     sha1 = result[0] if result else None
     log.debug("{} -> {}".format(cmd, sha1))
     return sha1
+
+
+def git_validate_sha1(project, sha1, project_owner='ceph'):
+    '''
+    Use http to validate that project contains sha1
+    I can't find a way to do this with git, period, so
+    we have specific urls to HEAD for github and git.ceph.com/gitweb
+    for now
+    '''
+    url = build_git_url(project, project_owner)
+
+    if '/github.com/' in url:
+        url = '/'.join((url, 'commit', sha1))
+    elif '/git.ceph.com/' in url:
+        # kinda specific to knowing git.ceph.com is gitweb
+        url = ('http://git.ceph.com/?p=%s.git;a=blob_plain;f=.gitignore;hb=%s'
+                    % (project, sha1))
+    else:
+        raise RuntimeError(
+            'git_validate_sha1: how do I check %s for a sha1?' % url
+        )
+
+    resp = requests.head(url)
+    if resp.ok:
+        return sha1
+    return None
 
 
 def build_git_url(project, project_owner='ceph'):

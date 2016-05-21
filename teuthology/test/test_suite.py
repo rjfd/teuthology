@@ -239,6 +239,7 @@ class TestFlavor(object):
         )
         assert suite.get_install_task_flavor(config) == 'notcmalloc'
 
+    @patch('teuthology.suite.git_validate_sha1')
     @patch('teuthology.suite.git_branch_exists')
     @patch('teuthology.suite.package_version_for_hash')
     @patch('teuthology.suite.git_ls_remote')
@@ -247,6 +248,7 @@ class TestFlavor(object):
         m_git_ls_remote,
         m_package_version_for_hash,
         m_git_branch_exists,
+        m_git_validate_sha1,
     ):
         config.gitbuilder_host = 'example.com'
         m_git_ls_remote.side_effect = [
@@ -257,6 +259,7 @@ class TestFlavor(object):
         ]
         m_package_version_for_hash.return_value = 'a_version'
         m_git_branch_exists.return_value = True
+        m_git_validate_sha1.return_value = None
         with pytest.raises(suite.ScheduleFailError):
             suite.create_initial_config(
                 'suite', 'suite_branch', 'ceph_hash', 'teuth_branch',

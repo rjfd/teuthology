@@ -763,7 +763,7 @@ def set_rh_deb_repo(remote, deb_repo, deb_gpg_key):
     """
     Sets up debian repo and gpg key for package verification
     """
-    repos = ['Calamari', 'Installer', 'MON', 'OSD', 'Tools']
+    repos = ['MON', 'OSD', 'Tools']
     log.info("deb repo: %s", deb_repo)
     log.info("gpg key url: %s", deb_gpg_key)
     remote.run(args=['sudo', 'rm', '-f', run.Raw('/etc/apt/sources.list.d/*')],
@@ -776,9 +776,12 @@ def set_rh_deb_repo(remote, deb_repo, deb_gpg_key):
         remote.run(args=['sudo', 'cp', "/tmp/{0}.list".format(repo),
                          '/etc/apt/sources.list.d/'])
     # add gpgkey
-    wget_cmd = 'wget -O - ' + deb_gpg_key
-    remote.run(args=['sudo', run.Raw(wget_cmd),
-                     run.Raw('|'), 'sudo', 'apt-key', 'add', run.Raw('-')])
+    ds_keys = [ 'https://www.redhat.com/security/897da07a.txt',
+                'http://puddle.ceph.redhat.com/keys/RPM-GPG-KEY-redhatbuild' ]
+    for key in ds_keys:
+        wget_cmd = 'wget -O - ' + key
+        remote.run(args=['sudo', run.Raw(wget_cmd),
+                         run.Raw('|'), 'sudo', 'apt-key', 'add', run.Raw('-')])
 
 def rh_install_pkgs(ctx, remote, installed_version):
     """

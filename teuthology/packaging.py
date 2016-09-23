@@ -127,7 +127,7 @@ def clean_repo_caches(clean_args, remote):
     """
     Clean repository cache
     """
-    flavor = remote.os_package_type
+    flavor = remote.os.package_type
     if flavor == 'deb':
         pkgcmd = ['DEBIAN_FRONTEND=noninteractive',
                   'sudo',

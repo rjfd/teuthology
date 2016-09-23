@@ -134,7 +134,7 @@ def clean_repo_caches(clean_args, remote):
                   'apt-get',
                   '-y',
                   'clean']
-    elif flavor == 'rpm'
+    elif flavor == 'rpm':
         if remote.os.name != 'opensuse':
             pkg_mng_cmd = 'yum'
             pkg_mng_opts = '-y'
